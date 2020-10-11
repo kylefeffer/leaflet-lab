@@ -6,10 +6,16 @@
 		<title>leaflet lab</title>
 
 		<!--my stylesheets and config files-->
-		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/style.css"> 
 		<script type='text/javascript' src='config.js'></script>
 
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		
+		<!--jquery links to js-->
+		<script type="text/javascript" src="lib/jquery-3.5.1.js"></script>
+
+		
+		<!--link to font awesome-->
+		<script src="https://kit.fontawesome.com/112cfe59ee.js" crossorigin="anonymous"></script>
 
 		<!--leaflet links to css and js-->
 		 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -18,17 +24,20 @@
    		 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
    		integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
   		crossorigin=""></script>
+  		
 
   		<!--bootstrap links to css and js-->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-		
 	</head>
 
 	<body>
-		<div id="map"></div>
-		<div>Description of map</div>
 
+		<div id="map"></div>
+		<div id="panel"></div>
+		<div><h1>Description of map</h1></div>
+
+		<!--links to main.js-->
 		<script type="text/javascript" src="js/main.js"></script>
 	</body>
 </html>
