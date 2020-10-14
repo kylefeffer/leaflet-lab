@@ -9,7 +9,7 @@ function createMap(){
     });
 
     //add OSM base tilelayer
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    var osm = new L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> | <a href="https://www.transtats.bts.gov/Data_Elements.aspx">Bureau of Transportation Statistics</a>'
     }).addTo(map);
 
@@ -28,11 +28,13 @@ function getData(map){
             createPropSymbols(response, map, attributes);
             //call function to create slider
             createSequenceControls(map, attributes);
+            //call function to create symbol resizing
+            createResymbolizeControls(map, attributes);
         }
     });
 };
 
-//Above Example 3.8...Step 3: build an attributes array from the data
+//initial creation of attributes
 function processData(data){
     //empty array to hold attributes
     var attributes = [];
@@ -42,99 +44,110 @@ function processData(data){
 
     //push each attribute name into attributes array
     for (var attribute in properties){
-        //only take attributes with population values
+        //only take attributes with year over year values
         if (attribute.indexOf("yy") > -1){
             attributes.push(attribute);
         };
     };
-
-    //check result
-    console.log(attributes);
-
     return attributes;
 };
 
-function createSequenceControls(map, attributes){
-    //create range input element (slider)
-    $('#panel').append('<input class="range-slider" type="range">');
-
-    //set slider attributes
-    $('.range-slider').attr({
-        max: 20,
-        min: 0,
-        value: 0,
-        step: 1
-    });
-
-    //below Example 3.4...add skip buttons
-    $('#panel').append('<button class="skip" id="reverse">Reverse</button>');
-    $('#panel').append('<button class="skip" id="forward">Skip</button>');
-
-    $('#reverse').html('<i class="fas fa-backward"></i>');
-    $('#forward').html('<i class="fas fa-forward"></i>');
-
-    //Example 3.12 line 7...Step 5: input listener for slider
-    $('.range-slider').on('input', function(){
-        //Step 6: get the new index value
-        var index = $(this).val();
-        console.log(index)
-
-        //Called in both skip button and slider event listener handlers
-        //Step 9: pass new attribute to update symbols
-        updatePropSymbols(map, attributes[index]);
-    });
-
-        //Example 3.12 line 2...Step 5: click listener for buttons
-    $('.skip').click(function(){
-        //get the old index value
-        var index = $('.range-slider').val();
-
-        //Step 6: increment or decrement depending on button clicked
-        if ($(this).attr('id') == 'forward'){
-            index++;
-            //Step 7: if past the last attribute, wrap around to first attribute
-            index = index > 20 ? 0 : index;
-        } else if ($(this).attr('id') == 'reverse'){
-            index--;
-            //Step 7: if past the first attribute, wrap around to last attribute
-            index = index < 0 ? 20 : index;
-        };
-
-        //Step 8: update slider
-        $('.range-slider').val(index);
-
-        //Called in both skip button and slider event listener handlers
-        //Step 9: pass new attribute to update symbols
-        updatePropSymbols(map, attributes[index]);
-    });
+//Add circle markers for point features to the map
+function createPropSymbols(data, map, attributes){
+    //create a Leaflet GeoJSON layer and add it to the map
+    L.geoJson(data, {
+        pointToLayer: function(feature, latlng){
+            return pointToLayer(feature, latlng, attributes);
+        }
+    }).addTo(map);
 };
 
-function calcPropRadius(attValue) {
+function calcPropRadius(attValue, scale = 60) {
     //scale factor to adjust symbol size evenly
-    var scaleFactor = 25;
+    var scaleFactor = scale;
     //area based on attribute value and scale factor
     var area = Math.abs(attValue) * scaleFactor;
     //radius calculated based on area
     var radius = Math.sqrt(area/Math.PI);
 
-	return radius;
+    return radius;
 };
 
+//Resize proportional symbols according to new attribute values
+function updatePropSymbols(map, attribute, scale, color_positive = "green", color_negative = "red"){
+    map.eachLayer(function(layer){
 
- //function to convert markers to circle markers
+        if (layer.feature && layer.feature.properties[attribute]){
+
+            //access feature properties
+            var props = layer.feature.properties;
+
+            if (props[attribute] > 0) {
+                layer.setStyle({fillColor : color_positive});               
+            }; if (props[attribute] < 0) {
+                layer.setStyle({fillColor : color_negative});
+            };
+
+            //update each feature's radius based on new attribute values
+            var radius = calcPropRadius(props[attribute], scale);
+            layer.setRadius(radius);
+
+            //add city to popup content string
+            var popupContent = "<p><b>Airport:</b> " + props.Airport + "</p>";
+            popupContent += "<p><b>IATA Code:</b> " + props.IATA_Code + "</p>";
+            popupContent += "<p><b>City:</b> " + props.City + "</p>";
+
+            //add formatted attribute to panel content string
+            var date = attribute.split("_")[0];
+            popupContent += "<p><b>Year Over Year Change in  " + date + ":</b> " + Number(Math.round(props[attribute] + 'e3') + 'e-3').toString() + "%</p>";
+
+            //replace the layer popup
+            layer.bindPopup(popupContent, {
+                offset: new L.Point(0,-radius)
+            });
+
+        layer.on({
+            mouseover: function(){
+            this.openPopup();
+        },
+            mouseout: function(){
+            this.closePopup();
+        },
+            click: function(){
+            $("#info-panel").html(popupContent);
+        }
+    });
+        };
+    });
+};
+
+//function to convert markers to circle markers
 function pointToLayer(feature, latlng, attributes){
-    //Step 4: Assign the current attribute based on the first index of the attributes array
+    //Assign the current attribute based on the first index of the attributes array
     var attribute = attributes[0];
-    //check
-    console.log(attribute);
 
-    //create marker options
-    var options = {
-        fillColor: "#ff7800",
-        color: "#000",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
+    //create marker options for positive values
+    if (feature.properties[attribute] > 0){
+
+        var options = {
+            fillColor: "green",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.6
+        };
+    };    
+
+    //create marker options for negative values
+    if (feature.properties[attribute] < 0){
+
+        var options = {
+            fillColor: "red",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.6
+        };
     };
 
     //For each feature, determine its value for the selected attribute
@@ -152,15 +165,14 @@ function pointToLayer(feature, latlng, attributes){
     popupContent += "<p><b>City:</b> " + feature.properties.City + "</p>";
 
     //add formatted attribute to popup content string
-    var month = attribute.substring(0,3);
-    var year = attribute.substring(3,5);
-    popupContent += "<p><b>Year Over Year Change (%) in  " + month + ' 20' + year + ":</b> " +  Number(Math.round(feature.properties[attribute] + 'e3') + 'e-3').toString() + "</p>";
+    var date = attribute.split("_")[0];
+    popupContent += "<p><b>Year Over Year Change in  " + date + ":</b> " +  Number(Math.round(feature.properties[attribute] + 'e3') + 'e-3').toString() + "%</p>";
     //bind the popup to the circle marker
     layer.bindPopup(popupContent, {
-    	offset: new L.Point(0, -options.radius)
+        offset: new L.Point(0, -options.radius)
     });
 
- ///event listeners to open popup on hover and fill panel on click...Example 2.5 line 4
+    //event listeners to open popup on hover and fill panel on click
     layer.on({
         mouseover: function(){
             this.openPopup();
@@ -169,7 +181,7 @@ function pointToLayer(feature, latlng, attributes){
             this.closePopup();
         },
         click: function(){
-            $("#panel").html(popupContent);
+            $("#info-panel").html(popupContent);
         }
     });
 
@@ -177,45 +189,126 @@ function pointToLayer(feature, latlng, attributes){
     return layer;
 };
 
-//Example 2.1 line 34...Add circle markers for point features to the map
-function createPropSymbols(data, map, attributes){
-    //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(data, {
-        pointToLayer: function(feature, latlng){
-            return pointToLayer(feature, latlng, attributes);
-        }
-    }).addTo(map);
-};
+//adds sequence controls
+function createSequenceControls(map, attributes){
+    //create range input element (slider)
+    $('#panel-slider').append('<input class="range-slider" type="range">');
 
-//Step 10: Resize proportional symbols according to new attribute values
-function updatePropSymbols(map, attribute){
-    map.eachLayer(function(layer){
-       //Example 3.16 line 4
-        if (layer.feature && layer.feature.properties[attribute]){
-            //access feature properties
-            var props = layer.feature.properties;
+    //set slider attributes
+    $('.range-slider').attr({
+        max: 20,
+        min: 0,
+        value: 0,
+        step: 1
+    });
 
-            //update each feature's radius based on new attribute values
-            var radius = calcPropRadius(props[attribute]);
-            layer.setRadius(radius);
+    //add skip buttons
+    $('#panel-slider').append('<button class="skip" id="reverse">Reverse</button>');
+    $('#panel-slider').append('<button class="skip" id="forward">Skip</button>');
 
-            //add city to popup content string
-            var popupContent = "<p><b>Airport:</b> " + props.Airport + "</p>";
-            popupContent += "<p><b>IATA Code:</b> " + props.IATA_Code + "</p>";
-            popupContent += "<p><b>City:</b> " + props.City + "</p>";
+    //add current attribute label
+    $('#title-panel').html('Current View:<b> ' + attributes[0].split("_")[0] +'</b>');
 
-            //add formatted attribute to panel content string
-            var month = attribute.substring(0,3);
-            var year = attribute.substring(3,5);
-            popupContent += "<p><b>Year Over Year Change (%) in " + month + ' 20' + year + ":</b> " + Number(Math.round(props[attribute] + 'e3') + 'e-3').toString() + "</p>";
+    //stylize buttons
+    $('#reverse').html('<i class="fas fa-backward"></i>');
+    $('#forward').html('<i class="fas fa-forward"></i>');
 
-            //replace the layer popup
-            layer.bindPopup(popupContent, {
-                offset: new L.Point(0,-radius)
-            });
+
+    //input listener for slider
+    $('.range-slider').on('input', function(){
+        //get the new index value
+        var index = $(this).val();
+        console.log(index)
+        $('#title-panel').html('Current View:<b> ' + attributes[index].split("_")[0] +'</b>');
+
+        //Called in both skip button and slider event listener handlers
+        //pass new attribute to update symbols
+        updatePropSymbols(map, attributes[index], parseInt($('.rescaler-slider').val()));
+    });
+
+    //click listener for buttons
+    $('.skip').click(function(){
+        //get the old index value
+        var index = $('.range-slider').val();
+
+        //increment or decrement depending on button clicked
+        if ($(this).attr('id') == 'forward'){
+            index++;
+            //if past the last attribute, wrap around to first attribute
+            index = index > 20 ? 0 : index;
+        } else if ($(this).attr('id') == 'reverse'){
+            index--;
+            //if past the first attribute, wrap around to last attribute
+            index = index < 0 ? 20 : index;
         };
+        $('#title-panel').html('Current View:<b> ' + attributes[index].split("_")[0] +'</b>');
+
+        //update slider
+        $('.range-slider').val(index);
+
+        //Called in both skip button and slider event listener handlers
+        //pass new attribute to update symbols
+        updatePropSymbols(map, attributes[index], parseInt($('.rescaler-slider').val()));
     });
 };
 
+//add resymbolizing controls
+function createResymbolizeControls(map, attributes){
+    //create range input element (slider)
+    $('#scale-slider').append('<input class="rescaler-slider" type="range">');
+
+    //set slider attributes
+    $('.rescaler-slider').attr({
+        max: 400,
+        min: 0,
+        value: 60,
+        step: 20
+    });
+
+    //add grow/shrink buttons
+    $('#scale-slider').append('<button class="skip" id="shrink">Skrink</button>');
+    $('#scale-slider').append('<button class="skip" id="grow">Grow</button>');
+
+    //stylize grow/shrink buttons
+    $('#shrink').html('<i class="fas fa-compress-arrows-alt"></i>');
+    $('#grow').html('<i class="fas fa-expand-arrows-alt"></i>');
+
+
+    //input listener for slider
+    $('.rescaler-slider').on('input', function(){
+        //get the new scale value
+        var scale = $(this).val();
+        console.log(scale);
+
+        //Called in both skip button and slider event listener handlers
+        //pass new scale to update symbols
+        updatePropSymbols(map, attributes[$('.range-slider').val()], scale);
+    });
+
+    //click listener for buttons
+    $('.skip').click(function(){
+        //get the old scale value
+        var scale = parseInt($('.rescaler-slider').val());
+
+        //increment or decrement depending on button clicked
+        if ($(this).attr('id') == 'grow'){
+            scale = scale + 20;
+            //if past the last attribute, wrap around to first attribute
+            scale = scale > 400 ? 0 : scale;
+        } else if ($(this).attr('id') == 'shrink'){
+            scale = scale - 20;
+            //if past the first attribute, wrap around to last attribute
+            scale = scale < 0 ? 400 : scale;
+        };
+
+        //update slider
+        $('.rescaler-slider').val(scale);
+        console.log(scale)
+
+        //Called in both skip button and slider event listener handlers
+        //pass new scale to update symbols
+        updatePropSymbols(map, attributes[$('.range-slider').val()], scale);
+    });
+};
 
 $(document).ready(createMap);
