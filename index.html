@@ -33,7 +33,7 @@
 
 	<body>
 		<div class = "hero-image-banner"> 
-			<h1 style="padding-top:100px">Pandemic Travel</h1>
+			<h1 style="padding-top:100px">Pandemic Air-Travel</h1>
 		</div>
     
 		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
@@ -45,37 +45,55 @@
 		            <li class="nav-item">
 		                <a class="navbar-brand" href="">Aviation Data</a>
 		            </li>
-		            <li class="nav-item">
-		                <a class="nav-link" href="">Fun Links</a>
-		            </li>
+<!-- 		            <li class="nav-item">
+		                <a class="nav-link" href="contact.html">Links and Contact</a>
+		            </li> -->
 		        </ul>
 		    </div>  
 		</nav>
 
 		<div style="padding: 16px">
-			<h2>How has the commerical airline industry been impacted by COVID-19?</h2> 
+			<h2>How has the commericial airline industry been impacted by COVID-19?</h2> 
 			<h4>Introduction</h4>
-			<p>As all of you sitting and reading this are well aware, the global pandemic of COVID-19 has caused all sorts of wide ranging impacts. Today, I want to examine the specific impact that the virus has had on the economy of US domestic travel. To do this, I collected data from 30 major airport within the United States and calculated the percentage of change in domestic passengers for each month as compared with the same month one calendar year earlier (change between Jan 2019 and Jan 2020 would show up as Jan 2020 percent change). Given the seasonal and cyclical nature of travel, these month to month comparison help provide consistant data and give insignt as to how the industry is looking compared to this time last year. Below, you will find a webmap with all of this data for you to look at yourself.</p>
+			<p>As all of you sitting and reading this are well aware, the global pandemic of COVID-19 has caused all sorts of wide ranging impacts. Today, I want to examine the specific impact that the virus has had on the economy of US domestic travel. To do this, I collected data from 30 major airport within the United States and calculated the percentage of change in domestic passengers for each month as compared with the same month one calendar year earlier (change between Jan 2019 and Jan 2020 would show up as Jan 2020 percent change). Given the seasonal and cyclical nature of travel, these month to month comparison help provide consistent data and give insight as to how the industry is looking compared to this time last year. Below, you will find a web map with all of this data for you to look at yourself.</p>
 		</div>
 
-		<div id="map"></div>
-		<div id="side-bar">
-			<div id="title-panel"></div>
-			<div id="panel-slider"></div>
-			<div id="scale-slider"></div>
-			<div id="color-picker"></div>
-			<div id="info-panel"></div>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-9">
+					<div style="padding-left:16px;  padding-right:16px">
+						<h4>Percentage of Year-Over-Year Change in Domestic Travel for 30 Major US Airports (January 2019 to June 2020)</h4>
+						<div id="map"></div>
+					</div>
+				</div>
+			
+			<div class="col-sm-3">
+				<div id="side-bar">
+					<div id="title-panel"></div>
+					<div id="panel-slider"></div>
+					<div id="scale-slider"></div>
+					<div><br><p><b>Info Panel</b> (click point to activate)</p></br><div>
+					<div id="info-panel"></div>
+					<p style="text-align: square">This map displays positive growth as green and negative growth as red. The size of the point represents the scale of the growth. Use the sliders to change the month or the dot scaling factor.</p>
+					
+				</div>
+			</div>
+			</div>
 		</div>
 		
 		<div style="padding: 16px">
 			<h4>Methodology</h4>
-			<p>Fourmula and what not</p>
+			<p>To perform this analysis, I downloaded datasets from the United States Department of Transportation - Bureau of Transportation Statistics representing 30 major airports in the United States. This data consisted of monthly passenger totals from January 2018 to June 2020. I then calculated year-over-year statistics by using the formula:</p>
+			<div style="text-align:center"><h6>100 x (Current Month - Month Last Year) / Month Last Year</h6></div>
 
 			<h4>Conclusion</h4>
-			<p>Conclusion....it is bad</p>
-
+			<p>When looking at this data, I want to break up in the analysis into three sections 1) all of 2019, 2) Pre-COVID 2020, 3) Post-COVID 2020. First, when looking through the 2019 data we can see that as a whole, the data appears to look pretty good for the airline industry. Though individual months and airports may have seen a decline, the industry looks to be generally growing. This brings us to the transition into a Pre-COVID 2020 where we find nearly every airport reporting positive growth in January and February. This may be a result of a few factors including a huge drop in jet fuel prices making flights more affordable, as well as 2020 being a leap year thus giving an extra day for growth in February. Regardless of the reason, we can see that the prospects for the industry were the highest they had been during this time period. However, we all know what happened next.</p>
+			<p>In March of 2020, the scale of COVID-19 began to become more clear. Though travel restrictions were placed on China (February 2) and Europe (March 11), it was not until March that we see domestic travel playing a major impact on the airline industry. As we progressed through the summer travel season, we can start to see a small return to the industry, but nothing even close to the numbers seen in 2019. Though we cannot be certain of what the next few months will look like, we can see that the airline industry may have a prolonged down period before returning to normal.</p>
+			
 			<h4>Sources</h4>
-			<p>Sources to be entered here</p>
+			<p>Shambra, Jessica, Louisiana Department of Transportation and Development, <i>Aircraft-Banner.jpg</i>, February 23, 2018.<a href="link" url="http://wwwsp.dotd.la.gov/Inside_LaDOTD/Divisions/Multimodal/Aviation/Pictures/Forms/DispForm.aspx?ID=23">http://wwwsp.dotd.la.gov/</a></p>
+			<p>United States Department of Transportation, <i>Bureau of Transportation Statistics T-100 Market Data</i>, September 2020. <a href="link" url="https://www.transtats.bts.gov/Data_Elements.aspx">https://www.transtats.bts.gov/Data_Elements.aspx</a></p>
+			
 		</div>
 
 		<!--links to main.js-->

@@ -1,13 +1,19 @@
 #map {
     height: 400px;
-    width: 80%;
+    width: 100%;
     margin: 16px;
     display: inline-block;
 }
 
 #side-bar {
-    width: 16%;
-    height:400px;
+    width: 100%;
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    line-height: 16px;
+}
+
+#under-bar {
     padding: 20px;
     display: inline-block;
     vertical-align: top;
@@ -107,9 +113,57 @@
     margin: 0.2em 0;
 }
 
+.fa:hover {
+    opacity: 0.7;
+}
+
+.fa-facebook {
+  background: #3B5998;
+  color: white;
+  padding: 15px;
+  font-size: 30px;
+  width: 65px;
+  text-align: center;
+  text-decoration: none;
+  margin: 5px 2px;
+}
+
+.fa-twitter {
+  background: #55ACEE;
+  color: white;
+  padding: 15px;
+  font-size: 30px;
+  width: 65px;
+  text-align: center;
+  text-decoration: none;
+  margin: 5px 2px;
+}
+
+.fa-linkedin {
+  background: #0076A8;
+  color: white;
+  padding: 15px;
+  font-size: 30px;
+  width: 65px;
+  text-align: center;
+  text-decoration: none;
+  margin: 5px 2px;
+}
+
+.fa-github {
+  background: #333;
+  color: white;
+  padding: 15px;
+  font-size: 30px;
+  width: 65px;
+  text-align: center;
+  text-decoration: none;
+  margin: 5px 2px;
+}
+
 
 .hero-image-banner {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url("https://github.com/kylefeffer/web-portfolio/blob/master/assets/banner.jpg?raw=true");
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url("https://github.com/kylefeffer/leaflet-lab/blob/master/assets/Aircraft-Banner.jpg?raw=true");
   height: 150px;
   background-position: center;
   background-repeat: no-repeat;
